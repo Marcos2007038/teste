@@ -1,14 +1,12 @@
-# Imagem base com Java 17
-FROM eclipse-temurin:17-jdk
-
-# Diretório de trabalho dentro do container
+# ===== BUILD =====
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copia o jar gerado para o container
-COPY target/TesteRender-0.0.1-SNAPSHOT.jar app.jar
-
-# Porta usada pelo Spring Boot
+# ===== RUN =====
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Comando para iniciar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]
